@@ -19,6 +19,7 @@ class User {
 	type: String,
 	unique: true
       },
+      articles: [],
       cmomunities: []
     })
   }
@@ -44,8 +45,24 @@ class Community {
   }
 }
 
+/* article */
+class Article {
+  static schema() {
+    return Schema({
+      title: String,
+      content: String,
+      timestamp: String
+    });
+  }
+
+  constructor() {
+    this.article = model('article', Article.schema());
+  }
+}
+
 /* exports */
 const _u = new User().user;
 const _c = new Community().community;
+const _a = new Article().article;
 
-module.exports = { _u, _c };
+module.exports = { _u, _c, _a };

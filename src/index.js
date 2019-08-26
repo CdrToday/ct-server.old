@@ -5,6 +5,7 @@ const Router = require('koa-router');
 const bodyparser = require('koa-body');
 const conf = require('./config');
 const user = require('./user');
+const articles = require('./articles');
 
 // main
 class Index {
@@ -14,6 +15,8 @@ class Index {
     r.all('/', ctx => { ctx.body = 'hello, world';})
       .post('/api_v0/:mail/code', user.sendCode)
       .post('/api_v0/:mail/verify', user.verifyCode)
+      .post('/api_v0/:mail/publish', user.publish)
+      .get('/api_v0/:mail/articles', articles.articles)
 
     return r;
   }
