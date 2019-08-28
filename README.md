@@ -1,3 +1,2 @@
-## server for `cdr.today`
-
----
+rewrite in golang
+-----------------
