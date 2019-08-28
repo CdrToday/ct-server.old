@@ -1,0 +1,10 @@
+[mail.auth]
+ident = ""
+user = ""
+pass = ""
+host = ""
+
+[mail.msg]
+addr = ""
+subject = ""
+from = ""
