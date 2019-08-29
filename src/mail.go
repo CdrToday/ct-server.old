@@ -1,18 +1,18 @@
 package main
 
 import (
-	"fmt"
 	"net/smtp"
 )
 
 func mailAuth() smtp.Auth {
-	auth := conf().Mail.Auth
+	t := conf()
+	ident := t.Get("mail.auth.ident").(string)
+	user := t.Get("mail.auth.user").(string)
+	pass := t.Get("mail.auth.pass").(string)
+	host := t.Get("mail.auth.host").(string)
 
 	return smtp.PlainAuth(
-		auth.Ident,
-		auth.User,
-		auth.Pass,
-		auth.Host,
+		ident, user, pass, host,
 	)
 }
 
@@ -25,12 +25,14 @@ func mailAuth() smtp.Auth {
 /// 8444aa5b-76ce-48de-b9d9-5108b5b39a13
 /// ```
 func _genMsg(to string, body string) []byte {
-	msg := conf().Mail.Msg
-	fmt.Println(msg)
+	t := conf()
+	cc := t.Get("mail.msg.subject").(string)
+	from := t.Get("mail.msg.from").(string)
+
 	plain := "" +
-		"From: " + msg.From + "\n" +
+		"From: " + from + "\n" +
 		"To: " + to + "\n" +
-		"Subject: " + msg.Subject + " \n\n" +
+		cc + " \n\n" +
 		body
 
 	return []byte(plain)

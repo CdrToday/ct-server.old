@@ -8,36 +8,11 @@ import (
 	"path/filepath"
 )
 
-/// config
-func conf() Config {
+func conf() *toml.Tree {
 	doc, _ := ioutil.ReadFile(_genPath(false))
-	config := Config{}
+	config, _ := toml.Load(string(doc))
 
-	toml.Unmarshal(doc, &config)
 	return config
-}
-
-/// ------ toml ------
-type Config struct {
-	Mail Mail
-}
-
-type Mail struct {
-	Auth MailAuth
-	Msg  MailMessage
-}
-
-type MailAuth struct {
-	Ident string
-	User  string
-	Pass  string
-	Host  string
-}
-
-type MailMessage struct {
-	Addr    string
-	Subject string
-	From    string
 }
 
 /// ----- utils -------
@@ -48,7 +23,7 @@ func _genPath(pro bool) string {
 	var config string
 
 	if pro {
-		config = os.Args[0]
+		config = os.Args[1]
 	} else {
 		config = "../config.toml"
 	}
