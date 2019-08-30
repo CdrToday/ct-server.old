@@ -7,15 +7,6 @@ import (
 	"github.com/lib/pq"
 )
 
-func main() {
-	o := orm()
-	user := User{
-		Mail: "udtrokia@163.com",
-	}
-	o.First(&user)
-	o.Model(&user).Update("articles", []string{"gorgor"})
-}
-
 func orm() *gorm.DB {
 	t := conf()
 	db, err := gorm.Open("postgres", t.Get("pg.addr").(string))
@@ -38,8 +29,8 @@ type User struct {
 
 /// article
 type Article struct {
-	Id        string `gorm: "unique;"`
-	Title     string
-	Content   string
-	Timestamp int64
+	Id        string `gorm:"unique;"json:"id"`
+	Title     string `json:"title"`
+	Content   string `json:"content"`
+	Timestamp int64  `json:"timestamp"`
 }

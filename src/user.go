@@ -36,7 +36,7 @@ func (u *UserAPI) verify(ctx iris.Context) {
 	mail := ctx.Params().Get("mail")
 	var body VerifyBody
 	ctx.ReadJSON(&body)
-	fmt.Println(body)
+
 	// pair uuid in redis
 	if rGet(mail) == body.Code {
 		user := User{
@@ -81,7 +81,7 @@ func (u *UserAPI) publish(ctx iris.Context) {
 	u.db.Find(&user)
 	u.db.Create(&article)
 
-	_articles := append(user.Articles, ArticleId{Id: _uuid})
+	_articles := append(user.Articles, _uuid)
 	err := u.db.Model(&user).Update("articles", _articles)
 
 	if err != nil {

@@ -20,9 +20,11 @@ func main() {
 		AllowCredentials: true,
 	})
 
+	_orm := orm()
+	defer _orm.Close()
 	// Methods
-	user := UserAPI{db: orm()}
-	article := ArticleAPI{}
+	user := UserAPI{db: _orm}
+	article := ArticleAPI{db: _orm}
 
 	// Router
 	v0 := app.Party("/api/v0", crs).AllowMethods(iris.MethodOptions)
