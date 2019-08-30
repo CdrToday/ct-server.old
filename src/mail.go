@@ -53,7 +53,3 @@ func sendMail(to string, uuid string) bool {
 		return true
 	}
 }
-
-func main() {
-	sendMail("udtrokia@163.com", "hello")
-}

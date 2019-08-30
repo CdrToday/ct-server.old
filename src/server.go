@@ -21,11 +21,11 @@ func main() {
 	})
 
 	// Methods
-	user := User{}
+	user := UserAPI{}
 	article := Article{}
 
 	// Router
-	v0 := app.Party("/api/v1", crs).AllowMethods(iris.MethodOptions)
+	v0 := app.Party("/api/v0", crs).AllowMethods(iris.MethodOptions)
 
 	{
 		v0.Get("/", root)

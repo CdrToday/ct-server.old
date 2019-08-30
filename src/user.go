@@ -9,30 +9,46 @@ func root(ctx iris.Context) {
 	ctx.HTML("hello, wolrd")
 }
 
-type User struct{}
+type UserAPI struct{}
 
-func (u *User) sendCode(ctx iris.Context) {
+func (u *UserAPI) sendCode(ctx iris.Context) {
 	mail := ctx.Params().Get("mail")
+	_uuid := uuid.NewV4().String()
 
-	_uuid := uuid.NewV4()
+	res := sendMail(mail, _uuid)
+	_res := rSet(mail, _uuid)
 
-	ctx.JSON(iris.Map{
-		"msg":  "ok",
-		"mail": mail,
-		"uuid": _uuid,
-	})
+	if res && _res {
+		ctx.JSON(iris.Map{
+			"msg": "ok",
+		})
+	}
 }
 
-func (u *User) verify(ctx iris.Context) {
-	mail := ctx.Params().Get("mail")
-
-	ctx.JSON(iris.Map{
-		"msg":  "ok",
-		"mail": mail,
-	})
+type VerifyBody struct {
+	Code string `json: "code"`
 }
 
-func (u *User) publish(ctx iris.Context) {
+func (u *UserAPI) verify(ctx iris.Context) {
+	mail := ctx.Params().Get("mail")
+	var body VerifyBody
+	err := ctx.ReadJSON(&body)
+
+	if err != nil {
+		ctx.StatusCode(iris.StatusBadRequest)
+		ctx.WriteString(err.Error())
+		return
+	}
+
+	res := rGet(mail)
+	if res == body.Code {
+		ctx.JSON(iris.Map{
+			"msg": "ok",
+		})
+	}
+}
+
+func (u *UserAPI) publish(ctx iris.Context) {
 	mail := ctx.Params().Get("mail")
 
 	ctx.JSON(iris.Map{
