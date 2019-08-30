@@ -5,10 +5,11 @@ import (
 )
 
 func _redis() *redis.Client {
+	t := conf()
 	client := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "", // no password set
-		DB:       0,  // use default DB
+		Addr:     t.Get("redis.addr").(string),
+		Password: t.Get("redis.pass").(string),
+		DB:       0,
 	})
 
 	return client

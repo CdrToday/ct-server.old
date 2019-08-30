@@ -21,8 +21,8 @@ func main() {
 	})
 
 	// Methods
-	user := UserAPI{}
-	article := Article{}
+	user := UserAPI{db: orm()}
+	article := ArticleAPI{}
 
 	// Router
 	v0 := app.Party("/api/v0", crs).AllowMethods(iris.MethodOptions)

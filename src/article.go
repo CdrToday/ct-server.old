@@ -4,9 +4,9 @@ import (
 	"github.com/kataras/iris"
 )
 
-type Article struct{}
+type ArticleAPI struct{}
 
-func (a *Article) articles(ctx iris.Context) {
+func (a *ArticleAPI) articles(ctx iris.Context) {
 	mail := ctx.Params().Get("mail")
 
 	ctx.JSON(iris.Map{
