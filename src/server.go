@@ -37,5 +37,5 @@ func main() {
 		v0.Get("/{mail:string}/articles", article.articles)
 	}
 
-	app.Run(iris.Addr(":8080"))
+	app.Run(iris.Addr(":6060"))
 }

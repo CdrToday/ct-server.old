@@ -41,9 +41,12 @@ func _genMsg(to string, body string) []byte {
 /// send uuid to author
 func sendMail(to string, uuid string) bool {
 	auth := mailAuth()
+	t := conf()
+	user := t.Get("mail.auth.user").(string)
+	addr := t.Get("mail.msg.addr").(string)
 
 	err := smtp.SendMail(
-		"smtp.qq.com:25", auth, "cdr.today@foxmail.com",
+		addr, auth, user,
 		[]string{to}, _genMsg(to, uuid),
 	)
 

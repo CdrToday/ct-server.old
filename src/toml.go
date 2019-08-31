@@ -22,7 +22,7 @@ func conf() *toml.Tree {
 func _genPath(pro bool) string {
 	var config string
 
-	if pro {
+	if len(os.Args) == 2 {
 		config = os.Args[1]
 	} else {
 		config = "../config.toml"
