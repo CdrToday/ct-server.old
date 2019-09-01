@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/jinzhu/gorm"
 	"github.com/kataras/iris"
 	"github.com/satori/go.uuid"
@@ -37,7 +36,6 @@ func (u *UserAPI) verify(ctx iris.Context) {
 	var body VerifyBody
 	ctx.ReadJSON(&body)
 
-	// pair uuid in redis
 	if rGet(mail) == body.Code {
 		user := User{
 			Mail: mail,
@@ -77,17 +75,87 @@ func (u *UserAPI) publish(ctx iris.Context) {
 		Timestamp: time.Now().Unix(),
 	}
 
-	// intt
 	u.db.Find(&user)
 	u.db.Create(&article)
 
 	_articles := append(user.Articles, _uuid)
-	err := u.db.Model(&user).Update("articles", _articles)
+	u.db.Model(&user).Where("mail = ?", mail).Update("articles", _articles)
 
-	if err != nil {
-		fmt.Println(err)
+	ctx.JSON(iris.Map{
+		"msg": "ok",
+	})
+}
+
+/// @route: "/{mail: string}/article/update"
+type UpdateArticleBody struct {
+	Id      string `json:id`
+	Title   string `json:title`
+	Content string `json:content`
+}
+
+func (u *UserAPI) updateArticle(ctx iris.Context) {
+	mail := ctx.Params().Get("mail")
+	var body UpdateArticleBody
+	ctx.ReadJSON(&body)
+
+	user := User{
+		Mail: mail,
 	}
 
+	article := Article{
+		Id: body.Id,
+	}
+
+	u.db.First(&user)
+	var _arr []string = user.Articles
+	if err := u.db.Where("id IN (?)", _arr).First(&article).Error; err != nil {
+		ctx.StatusCode(iris.StatusBadRequest)
+		return
+	}
+
+	u.db.Model(&article).Where("id = ?", body.Id).Updates(map[string]interface{}{
+		"title":   body.Title,
+		"content": body.Content,
+	})
+
+	ctx.JSON(iris.Map{
+		"msg": "ok",
+	})
+}
+
+/// @route: "/{mail: string}/article/delete"
+type DeleteArticleBody struct {
+	Id string `json:id`
+}
+
+func (u *UserAPI) deleteArticle(ctx iris.Context) {
+	mail := ctx.Params().Get("mail")
+	var body DeleteArticleBody
+	ctx.ReadJSON(&body)
+
+	user := User{
+		Mail: mail,
+	}
+
+	article := Article{
+		Id: body.Id,
+	}
+
+	u.db.Delete(&article)
+	u.db.First(&user)
+
+	var index int
+	for i, b := range user.Articles {
+		if b == body.Id {
+			index = i
+		}
+	}
+
+	_arr := user.Articles
+	_arr[index] = _arr[len(_arr)-1]
+	_arr = _arr[:len(_arr)-1]
+
+	u.db.Model(&user).Where("mail = ?", mail).Update("articles", _arr)
 	ctx.JSON(iris.Map{
 		"msg": "ok",
 	})

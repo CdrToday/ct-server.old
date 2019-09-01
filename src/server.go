@@ -34,6 +34,8 @@ func main() {
 		v0.Post("/{mail:string}/code", user.sendCode)
 		v0.Post("/{mail:string}/verify", user.verify)
 		v0.Post("/{mail:string}/publish", user.publish)
+		v0.Post("/{mail:string}/article/update", user.updateArticle)
+		v0.Post("/{mail:string}/article/delete", user.deleteArticle)
 		v0.Get("/{mail:string}/articles", article.articles)
 	}
 

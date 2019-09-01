@@ -28,7 +28,5 @@ require (
 	github.com/ryanuber/columnize v2.1.0+incompatible // indirect
 	github.com/satori/go.uuid v1.2.0
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
-	github.com/stvp/go-toml-config v0.0.0-20170523163211-314328849d78 // indirect
 	golang.org/x/crypto v0.0.0-20190820162420-60c769a6c586 // indirect
-	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df // indirect
 )

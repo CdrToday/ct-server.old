@@ -29,7 +29,7 @@ type User struct {
 
 /// article
 type Article struct {
-	Id        string `gorm:"unique;"json:"id"`
+	Id        string `gorm:"unique;primary_key"json:"id"`
 	Title     string `json:"title"`
 	Content   string `json:"content"`
 	Timestamp int64  `json:"timestamp"`

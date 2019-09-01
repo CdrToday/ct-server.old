@@ -19,7 +19,8 @@ func (a *ArticleAPI) articles(ctx iris.Context) {
 	a.db.First(&user)
 
 	articles := []Article{}
-	a.db.Find(&articles).Where("id IN (?)", user.Articles)
+	var _arr []string = user.Articles
+	a.db.Where("id IN (?)", _arr).Find(&articles)
 
 	ctx.JSON(iris.Map{
 		"articles": articles,
