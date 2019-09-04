@@ -22,7 +22,7 @@ func orm() *gorm.DB {
 
 /// user
 type User struct {
-	Name     string         `gorm:"unique"`
+	Name     string
 	Mail     string         `gorm:"unique"`
 	Articles pq.StringArray `gorm:"type:varchar(100)[];"`
 }

@@ -37,9 +37,7 @@ func (u *UserAPI) verify(ctx iris.Context) {
 	ctx.ReadJSON(&body)
 
 	if rGet(mail) == body.Code {
-		user := User{
-			Mail: mail,
-		}
+		var user User
 
 		u.db.FirstOrCreate(&user, User{Mail: mail})
 		ctx.JSON(iris.Map{
@@ -64,10 +62,6 @@ func (u *UserAPI) publish(ctx iris.Context) {
 	ctx.ReadJSON(&body)
 	_uuid := uuid.NewV4().String()
 
-	user := User{
-		Mail: mail,
-	}
-
 	article := Article{
 		Id:        _uuid,
 		Title:     body.Title,
@@ -75,7 +69,8 @@ func (u *UserAPI) publish(ctx iris.Context) {
 		Timestamp: time.Now().Unix(),
 	}
 
-	u.db.Find(&user)
+	var user User
+	u.db.Where("mail = ?", mail).Find(&user)
 	u.db.Create(&article)
 
 	_articles := append(user.Articles, _uuid)
@@ -98,17 +93,12 @@ func (u *UserAPI) updateArticle(ctx iris.Context) {
 	var body UpdateArticleBody
 	ctx.ReadJSON(&body)
 
-	user := User{
-		Mail: mail,
-	}
+	var user User
+	var article Article
 
-	article := Article{
-		Id: body.Id,
-	}
-
-	u.db.First(&user)
+	u.db.Where("mail = ?", mail).Find(&user)
 	var _arr []string = user.Articles
-	if err := u.db.Where("id IN (?)", _arr).First(&article).Error; err != nil {
+	if err := u.db.Where("id IN (?)", _arr).Find(&article).Error; err != nil {
 		ctx.StatusCode(iris.StatusBadRequest)
 		return
 	}
@@ -133,16 +123,13 @@ func (u *UserAPI) deleteArticle(ctx iris.Context) {
 	var body DeleteArticleBody
 	ctx.ReadJSON(&body)
 
-	user := User{
-		Mail: mail,
-	}
-
+	var user User
 	article := Article{
 		Id: body.Id,
 	}
 
 	u.db.Delete(&article)
-	u.db.First(&user)
+	u.db.Where("mail = ?", mail).Find(&user)
 
 	var index int
 	for i, b := range user.Articles {

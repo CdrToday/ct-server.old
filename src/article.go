@@ -13,10 +13,8 @@ func (a *ArticleAPI) articles(ctx iris.Context) {
 	mail := ctx.Params().Get("mail")
 
 	// get user
-	user := User{
-		Mail: mail,
-	}
-	a.db.First(&user)
+	var user User
+	a.db.Where("mail = ?", mail).Find(&user)
 
 	articles := []Article{}
 	var _arr []string = user.Articles
