@@ -42,6 +42,10 @@ func (u *UserAPI) verify(ctx iris.Context) {
 		u.db.FirstOrCreate(&user, User{Mail: mail})
 		ctx.JSON(iris.Map{
 			"msg": "ok",
+			"data": iris.Map{
+				"name": user.Name,
+				"mail": user.Mail,
+			},
 		})
 
 		return
@@ -79,6 +83,32 @@ func (u *UserAPI) publish(ctx iris.Context) {
 	ctx.JSON(iris.Map{
 		"msg": "ok",
 	})
+}
+
+/// @route: "/{mail: string}/update/name"
+type UpdateUserNameBody struct {
+	Name string `json:name`
+}
+
+func (u *UserAPI) updateUserName(ctx iris.Context) {
+	mail := ctx.Params().Get("mail")
+	var body UpdateUserNameBody
+	ctx.ReadJSON(&body)
+
+	var user User
+	if err := u.db.Where("name = ?", body.Name).Find(&user).Error; err != nil {
+		u.db.Model(&user).Where("mail = ?", mail).Update("name", body.Name)
+		ctx.JSON(iris.Map{
+			"msg": "ok",
+			"data": iris.Map{
+				"mail": user.Mail,
+				"name": user.Name,
+			},
+		})
+		return
+	}
+
+	ctx.StatusCode(iris.StatusBadRequest)
 }
 
 /// @route: "/{mail: string}/article/update"
