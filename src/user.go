@@ -98,6 +98,8 @@ func (u *UserAPI) updateUserName(ctx iris.Context) {
 	var user User
 	if err := u.db.Where("name = ?", body.Name).Find(&user).Error; err != nil {
 		u.db.Model(&user).Where("mail = ?", mail).Update("name", body.Name)
+		u.db.Where("name = ?", body.Name).Find(&user)
+
 		ctx.JSON(iris.Map{
 			"msg": "ok",
 			"data": iris.Map{
@@ -105,6 +107,7 @@ func (u *UserAPI) updateUserName(ctx iris.Context) {
 				"name": user.Name,
 			},
 		})
+
 		return
 	}
 
