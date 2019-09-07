@@ -37,6 +37,7 @@ func main() {
 		v0.Use(auth)
 
 		v0.Post("/{mail:string}/publish", user.publish)
+		v0.Post("/{mail:string}/upload", user.upload)
 		v0.Post("/{mail:string}/update/name", user.updateUserName)
 		v0.Post("/{mail:string}/article/update", user.updateArticle)
 		v0.Post("/{mail:string}/article/delete", user.deleteArticle)

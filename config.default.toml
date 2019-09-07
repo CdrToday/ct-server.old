@@ -8,3 +8,17 @@ host = ""
 addr = ""
 subject = ""
 from = ""
+
+[redis]
+addr = ""
+pass = ""
+db = 0
+
+[pg]
+addr = ""
+
+[qiniu]
+ak = ""
+sk = ""
+bucket = ''
+space = ""
