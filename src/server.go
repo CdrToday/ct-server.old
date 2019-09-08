@@ -19,9 +19,9 @@ func main() {
 		AllowCredentials: true,
 	})
 
+	// Methods
 	_orm := orm()
 	defer _orm.Close()
-	// Methods
 	user := UserAPI{db: _orm}
 	article := ArticleAPI{db: _orm}
 
@@ -32,7 +32,9 @@ func main() {
 		v0.Get("/", root)
 		v0.Get("/{mail:string}/code", user.sendCode)
 		v0.Post("/{mail:string}/verify", user.verify)
-		v0.Get("/{mail:string}/articles", article.articles)
+		v0.Get("/{mail:string}/articles", article.mail)
+		v0.Get("/articles/{user:string}", article.user)
+		v0.Get("/article/{id:string}", article.spec)
 
 		v0.Use(auth)
 

@@ -23,7 +23,7 @@ def cdn(pic):
 
     # save data
     png = base64.b64decode(pic)
-    name = str(uuid.uuid4())
+    name = str(key)
     path = str(Path.home()) + '/tmp/cache'
 
     if os.path.exists(path) == False :
@@ -51,7 +51,7 @@ def upload():
     j = request.json
     image = j['Image']
     res = cdn(image)
-    
+
     return jsonify(
         msg=res
     )

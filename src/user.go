@@ -57,6 +57,7 @@ func (u *UserAPI) verify(ctx iris.Context) {
 /// @route: "/:mail/publish"
 type PublishBody struct {
 	Title   string `json: "title"`
+	Cover   string `json: "cover"`
 	Content string `json: "content"`
 }
 
@@ -69,6 +70,7 @@ func (u *UserAPI) publish(ctx iris.Context) {
 	article := Article{
 		Id:        _uuid,
 		Title:     body.Title,
+		Cover:     body.Cover,
 		Content:   body.Content,
 		Timestamp: time.Now().Unix(),
 	}
@@ -118,6 +120,7 @@ func (u *UserAPI) updateUserName(ctx iris.Context) {
 type UpdateArticleBody struct {
 	Id      string `json:id`
 	Title   string `json:title`
+	Cover   string `json:cover`
 	Content string `json:content`
 }
 
@@ -138,6 +141,7 @@ func (u *UserAPI) updateArticle(ctx iris.Context) {
 
 	u.db.Model(&article).Where("id = ?", body.Id).Updates(map[string]interface{}{
 		"title":   body.Title,
+		"cover":   body.Cover,
 		"content": body.Content,
 	})
 

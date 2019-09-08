@@ -31,6 +31,7 @@ type User struct {
 type Article struct {
 	Id        string `gorm:"unique;primary_key"json:"id"`
 	Title     string `json:"title"`
+	Cover     string `json:"cover"`
 	Content   string `json:"content"`
 	Timestamp int64  `json:"timestamp"`
 }

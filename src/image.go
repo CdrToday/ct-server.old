@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/kataras/iris"
-	"io/ioutil"
 	"net/http"
 )
 
@@ -18,18 +17,18 @@ func (u *UserAPI) upload(ctx iris.Context) {
 
 	pb := proxy(body)
 
-	if pb.Message == "err" {
+	if pb.Msg == "err" {
 		ctx.StatusCode(iris.StatusBadRequest)
 	}
 
 	ctx.JSON(iris.Map{
-		"msg": "ok",
-		"url": pb.Message,
+		"msg":   "ok",
+		"cover": pb.Msg,
 	})
 }
 
 type ProxyBody struct {
-	Message string `json:msg`
+	Msg string `json:msg`
 }
 
 func proxy(body UploadBody) ProxyBody {
@@ -41,9 +40,8 @@ func proxy(body UploadBody) ProxyBody {
 	)
 
 	var pb ProxyBody
-	_body, _ := ioutil.ReadAll(resp.Body)
-
-	json.Unmarshal(_body, &pb)
+	defer resp.Body.Close()
+	json.NewDecoder(resp.Body).Decode(&pb)
 
 	return pb
 }
