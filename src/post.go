@@ -19,7 +19,7 @@ func (u *UserAPI) publish(ctx iris.Context) {
 	ctx.ReadJSON(&body)
 	_uuid := uuid.NewV4().String()
 
-	article := Article{
+	post := Post{
 		Id:        _uuid,
 		Title:     body.Title,
 		Cover:     body.Cover,
@@ -29,10 +29,10 @@ func (u *UserAPI) publish(ctx iris.Context) {
 
 	var user User
 	u.db.Where("mail = ?", mail).Find(&user)
-	u.db.Create(&article)
+	u.db.Create(&post)
 
-	_articles := append(user.Articles, _uuid)
-	u.db.Model(&user).Where("mail = ?", mail).Update("articles", _articles)
+	_posts := append(user.Posts, _uuid)
+	u.db.Model(&user).Where("mail = ?", mail).Update("posts", _posts)
 
 	ctx.JSON(iris.Map{
 		"msg": "ok",
@@ -68,7 +68,7 @@ func (u *UserAPI) updateUserName(ctx iris.Context) {
 	ctx.StatusCode(iris.StatusBadRequest)
 }
 
-/// updateArticle
+/// updatePost
 type UpdatePostBody struct {
 	Title   string `json:title`
 	Cover   string `json:cover`
@@ -83,18 +83,18 @@ func (u *UserAPI) updatePost(ctx iris.Context) {
 	ctx.ReadJSON(&body)
 
 	var user User
-	article := Article{
+	post := Post{
 		Id: id,
 	}
 
 	u.db.Where("mail = ?", mail).Find(&user)
-	var _arr []string = user.Articles
-	if err := u.db.Where("id IN (?)", _arr).Find(&article).Error; err != nil {
+	var _arr []string = user.Posts
+	if err := u.db.Where("id IN (?)", _arr).Find(&post).Error; err != nil {
 		ctx.StatusCode(iris.StatusBadRequest)
 		return
 	}
 
-	if err := u.db.Model(&article).Where("id = ?", id).Updates(map[string]interface{}{
+	if err := u.db.Model(&post).Where("id = ?", id).Updates(map[string]interface{}{
 		"title":   body.Title,
 		"cover":   body.Cover,
 		"content": body.Content,
@@ -108,7 +108,7 @@ func (u *UserAPI) updatePost(ctx iris.Context) {
 	})
 }
 
-// delete article
+// delete post
 func (u *UserAPI) deletePost(ctx iris.Context) {
 	id := ctx.Params().Get("id")
 	mail := ctx.Params().Get("mail")
@@ -118,7 +118,7 @@ func (u *UserAPI) deletePost(ctx iris.Context) {
 	u.db.Where("mail = ?", mail).Find(&user)
 
 	index := 0
-	for i, b := range user.Articles {
+	for i, b := range user.Posts {
 		if b == id {
 			index = i
 		}
@@ -129,18 +129,18 @@ func (u *UserAPI) deletePost(ctx iris.Context) {
 		return
 	}
 
-	_arr := user.Articles
+	_arr := user.Posts
 	_arr[index] = _arr[len(_arr)-1]
 	_arr = _arr[:len(_arr)-1]
 
-	u.db.Model(&user).Where("mail = ?", mail).Update("articles", _arr)
+	u.db.Model(&user).Where("mail = ?", mail).Update("posts", _arr)
 
 	// delete post
-	article := Article{
+	post := Post{
 		Id: id,
 	}
 
-	u.db.Delete(&article)
+	u.db.Delete(&post)
 
 	ctx.JSON(iris.Map{
 		"msg": "ok",

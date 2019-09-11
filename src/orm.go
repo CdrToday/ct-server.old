@@ -15,20 +15,20 @@ func orm() *gorm.DB {
 	}
 
 	db.AutoMigrate(&User{})
-	db.AutoMigrate(&Article{})
+	db.AutoMigrate(&Post{})
 
 	return db
 }
 
 /// user
 type User struct {
-	Name     string
-	Mail     string         `gorm:"unique"`
-	Articles pq.StringArray `gorm:"type:varchar(100)[];"`
+	Name  string
+	Mail  string         `gorm:"unique"`
+	Posts pq.StringArray `gorm:"type:varchar(100)[];"`
 }
 
 /// article
-type Article struct {
+type Post struct {
 	Id        string `gorm:"unique;primary_key"json:"id"`
 	Title     string `json:"title"`
 	Cover     string `json:"cover"`

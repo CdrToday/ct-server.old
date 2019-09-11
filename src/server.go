@@ -23,7 +23,7 @@ func main() {
 	_orm := orm()
 	defer _orm.Close()
 	user := UserAPI{db: _orm}
-	post := ArticleAPI{db: _orm}
+	post := PostAPI{db: _orm}
 
 	// Router
 	v0 := app.Party("/api/v0", crs).AllowMethods(iris.MethodOptions)

@@ -6,11 +6,11 @@ import (
 	"strconv"
 )
 
-type ArticleAPI struct {
+type PostAPI struct {
 	db *gorm.DB
 }
 
-func (a *ArticleAPI) mail(ctx iris.Context) {
+func (a *PostAPI) mail(ctx iris.Context) {
 	limit := 10
 	_mail := ctx.Params().Get("mail")
 	page := ctx.URLParamDefault("p", "0")
@@ -25,16 +25,16 @@ func (a *ArticleAPI) mail(ctx iris.Context) {
 	var user User
 	a.db.Where("mail = ?", _mail).Find(&user)
 
-	articles := []Article{}
-	var _arr []string = user.Articles
-	a.db.Where("id IN (?)", _arr).Order("timestamp").Limit(limit).Offset(_page * limit).Find(&articles)
+	posts := []Post{}
+	var _arr []string = user.Posts
+	a.db.Where("id IN (?)", _arr).Order("timestamp").Limit(limit).Offset(_page * limit).Find(&posts)
 
 	ctx.JSON(iris.Map{
-		"articles": articles,
+		"posts": posts,
 	})
 }
 
-func (a *ArticleAPI) user(ctx iris.Context) {
+func (a *PostAPI) user(ctx iris.Context) {
 	limit := 10
 	name := ctx.Params().Get("user")
 	page := ctx.URLParamDefault("p", "0")
@@ -49,22 +49,22 @@ func (a *ArticleAPI) user(ctx iris.Context) {
 	var user User
 	a.db.Where("name = ?", name).Find(&user)
 
-	articles := []Article{}
-	var _arr []string = user.Articles
-	a.db.Where("id IN (?)", _arr).Order("timestamp").Limit(limit).Offset(_page * limit).Find(&articles)
+	posts := []Post{}
+	var _arr []string = user.Posts
+	a.db.Where("id IN (?)", _arr).Order("timestamp").Limit(limit).Offset(_page * limit).Find(&posts)
 
 	ctx.JSON(iris.Map{
-		"articles": articles,
+		"posts": posts,
 	})
 }
 
-func (a *ArticleAPI) spec(ctx iris.Context) {
+func (a *PostAPI) spec(ctx iris.Context) {
 	id := ctx.Params().Get("id")
 
-	var article Article
-	a.db.Where("id = ?", id).First(&article)
+	var post Post
+	a.db.Where("id = ?", id).First(&post)
 
 	ctx.JSON(iris.Map{
-		"data": article,
+		"data": post,
 	})
 }
