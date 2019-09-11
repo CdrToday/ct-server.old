@@ -9,7 +9,7 @@ import (
 
 func main() {
 	app := iris.New()
-	app.Logger() //.SetLevel("debug")
+	app.Logger()
 	app.Use(recover.New())
 	app.Use(logger.New())
 
@@ -23,27 +23,33 @@ func main() {
 	_orm := orm()
 	defer _orm.Close()
 	user := UserAPI{db: _orm}
-	article := ArticleAPI{db: _orm}
+	post := ArticleAPI{db: _orm}
 
 	// Router
 	v0 := app.Party("/api/v0", crs).AllowMethods(iris.MethodOptions)
 
 	{
 		v0.Get("/", root)
-		v0.Get("/{mail:string}/code", user.sendCode)
-		v0.Post("/{mail:string}/verify", user.verify)
-		v0.Get("/{mail:string}/articles", article.mail)
-		v0.Get("/articles/{user:string}", article.user)
-		v0.Get("/article/{id:string}", article.spec)
 
-		v0.Use(auth)
+		// auth
+		v0.Get("/a/{mail:string}", user.mail)    // ok
+		v0.Post("/a/{mail:string}", user.verify) // ok
 
-		v0.Post("/{mail:string}/publish", user.publish)
-		v0.Post("/{mail:string}/upload", user.upload)
-		v0.Post("/{mail:string}/update/name", user.updateUserName)
-		v0.Post("/{mail:string}/article/update", user.updateArticle)
-		v0.Post("/{mail:string}/article/delete", user.deleteArticle)
+		// open
+		v0.Get("/p/{id:string}", post.spec)
+		v0.Get("/x/{user:string}/p", post.user)
 
+		v0.Use(auth) // ok
+
+		// profile
+		v0.Post("/u/{mail:string}/upload", user.upload)        // ok
+		v0.Put("/u/{mail:string}/i/name", user.updateUserName) // ok
+
+		// posts
+		v0.Get("/u/{mail:string}/p", post.mail)                      // ok
+		v0.Post("/u/{mail:string}/p", user.publish)                  // ok
+		v0.Put("/u/{mail:string}/p/{id:string}", user.updatePost)    // ok
+		v0.Delete("/u/{mail:string}/p/{id:string}", user.deletePost) // ok
 	}
 
 	app.Run(iris.Addr(":6060"))

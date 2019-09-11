@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-/// @route: "/:mail/publish"
+// publish
 type PublishBody struct {
 	Title   string `json: "title"`
 	Cover   string `json: "cover"`
@@ -39,7 +39,7 @@ func (u *UserAPI) publish(ctx iris.Context) {
 	})
 }
 
-/// @route: "/{mail: string}/update/name"
+// updateUser
 type UpdateUserNameBody struct {
 	Name string `json:name`
 }
@@ -68,21 +68,24 @@ func (u *UserAPI) updateUserName(ctx iris.Context) {
 	ctx.StatusCode(iris.StatusBadRequest)
 }
 
-/// @route: "/{mail: string}/article/update"
-type UpdateArticleBody struct {
-	Id      string `json:id`
+/// updateArticle
+type UpdatePostBody struct {
 	Title   string `json:title`
 	Cover   string `json:cover`
 	Content string `json:content`
 }
 
-func (u *UserAPI) updateArticle(ctx iris.Context) {
+func (u *UserAPI) updatePost(ctx iris.Context) {
+	id := ctx.Params().Get("id")
 	mail := ctx.Params().Get("mail")
-	var body UpdateArticleBody
+
+	var body UpdatePostBody
 	ctx.ReadJSON(&body)
 
 	var user User
-	var article Article
+	article := Article{
+		Id: id,
+	}
 
 	u.db.Where("mail = ?", mail).Find(&user)
 	var _arr []string = user.Articles
@@ -91,40 +94,39 @@ func (u *UserAPI) updateArticle(ctx iris.Context) {
 		return
 	}
 
-	u.db.Model(&article).Where("id = ?", body.Id).Updates(map[string]interface{}{
+	if err := u.db.Model(&article).Where("id = ?", id).Updates(map[string]interface{}{
 		"title":   body.Title,
 		"cover":   body.Cover,
 		"content": body.Content,
-	})
+	}).Error; err != nil {
+		ctx.StatusCode(iris.StatusBadRequest)
+		return
+	}
 
 	ctx.JSON(iris.Map{
 		"msg": "ok",
 	})
 }
 
-/// @route: "/{mail: string}/article/delete"
-type DeleteArticleBody struct {
-	Id string `json:id`
-}
-
-func (u *UserAPI) deleteArticle(ctx iris.Context) {
+// delete article
+func (u *UserAPI) deletePost(ctx iris.Context) {
+	id := ctx.Params().Get("id")
 	mail := ctx.Params().Get("mail")
-	var body DeleteArticleBody
-	ctx.ReadJSON(&body)
 
+	// delete post in user
 	var user User
-	article := Article{
-		Id: body.Id,
-	}
-
-	u.db.Delete(&article)
 	u.db.Where("mail = ?", mail).Find(&user)
 
-	var index int
+	index := 0
 	for i, b := range user.Articles {
-		if b == body.Id {
+		if b == id {
 			index = i
 		}
+	}
+
+	if index == 0 {
+		ctx.StatusCode(iris.StatusBadRequest)
+		return
 	}
 
 	_arr := user.Articles
@@ -132,6 +134,14 @@ func (u *UserAPI) deleteArticle(ctx iris.Context) {
 	_arr = _arr[:len(_arr)-1]
 
 	u.db.Model(&user).Where("mail = ?", mail).Update("articles", _arr)
+
+	// delete post
+	article := Article{
+		Id: id,
+	}
+
+	u.db.Delete(&article)
+
 	ctx.JSON(iris.Map{
 		"msg": "ok",
 	})

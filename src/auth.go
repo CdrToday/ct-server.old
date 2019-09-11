@@ -14,7 +14,7 @@ type UserAPI struct {
 	db *gorm.DB
 }
 
-func (u *UserAPI) sendCode(ctx iris.Context) {
+func (u *UserAPI) mail(ctx iris.Context) {
 	mail := ctx.Params().Get("mail")
 	_uuid := uuid.NewV4().String()
 
