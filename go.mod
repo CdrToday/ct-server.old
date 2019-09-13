@@ -33,7 +33,8 @@ require (
 	github.com/microcosm-cc/bluemonday v1.0.2 // indirect
 	github.com/moul/http2curl v1.0.0 // indirect
 	github.com/pelletier/go-toml v1.4.0
-	github.com/qiniu/api.v7 v7.2.5+incompatible // indirect
+	github.com/qiniu/api.v7 v7.2.5+incompatible
+	github.com/qiniu/x v7.0.8+incompatible // indirect
 	github.com/ryanuber/columnize v2.1.0+incompatible // indirect
 	github.com/satori/go.uuid v1.2.0
 	github.com/sergi/go-diff v1.0.0 // indirect
@@ -48,4 +49,5 @@ require (
 	github.com/yudai/pp v2.0.1+incompatible // indirect
 	golang.org/x/crypto v0.0.0-20190820162420-60c769a6c586 // indirect
 	golang.org/x/net v0.0.0-20190827160401-ba9fcec4b297 // indirect
+	qiniupkg.com/x v7.0.8+incompatible // indirect
 )

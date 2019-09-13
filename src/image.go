@@ -1,10 +1,13 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
+	"encoding/base64"
 	"github.com/kataras/iris"
-	"net/http"
+	"github.com/qiniu/api.v7/auth/qbox"
+	"github.com/qiniu/api.v7/storage"
+	"github.com/satori/go.uuid"
+	"golang.org/x/net/context"
+	"os"
 )
 
 type UploadBody struct {
@@ -15,33 +18,59 @@ func (u *UserAPI) upload(ctx iris.Context) {
 	var body UploadBody
 	ctx.ReadJSON(&body)
 
-	pb := proxy(body)
-
-	if pb.Msg == "err" {
-		ctx.StatusCode(iris.StatusBadRequest)
-	}
+	key := proxy(body)
 
 	ctx.JSON(iris.Map{
 		"msg":   "ok",
-		"cover": pb.Msg,
+		"cover": key,
 	})
 }
 
-type ProxyBody struct {
-	Msg string `json:msg`
-}
+func proxy(body UploadBody) string {
+	t := conf()
 
-func proxy(body UploadBody) ProxyBody {
-	value, _ := json.Marshal(body)
-	resp, _ := http.Post(
-		"http://localhost:7070/upload",
-		"application/json",
-		bytes.NewBuffer(value),
+	key, localFile := saveImage(body.Image)
+	putPolicy := storage.PutPolicy{
+		Scope: t.Get("qiniu.bucket").(string),
+	}
+
+	mac := qbox.NewMac(
+		t.Get("qiniu.ak").(string),
+		t.Get("qiniu.sk").(string),
 	)
 
-	var pb ProxyBody
-	defer resp.Body.Close()
-	json.NewDecoder(resp.Body).Decode(&pb)
+	upToken := putPolicy.UploadToken(mac)
+	formUploader := storage.NewFormUploader(&storage.Config{})
+	ret := storage.PutRet{}
 
-	return pb
+	formUploader.PutFile(
+		context.Background(),
+		&ret,
+		upToken,
+		key,
+		localFile,
+		&storage.PutExtra{},
+	)
+	os.Remove(localFile)
+
+	return ret.Key
+}
+
+func saveImage(b64 string) (string, string) {
+	key := uuid.NewV4().String()
+	home, _ := os.UserHomeDir()
+	path := home + "/tmp/cache" + key + ".png"
+
+	dec, err := base64.StdEncoding.DecodeString(b64)
+	if err != nil {
+		panic(err)
+	}
+
+	f, _ := os.Create(path)
+	defer f.Close()
+
+	f.Write(dec)
+	f.Sync()
+
+	return key, path
 }
