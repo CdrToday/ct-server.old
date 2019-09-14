@@ -8,9 +8,7 @@ import (
 
 // publish
 type PublishBody struct {
-	Title   string `json: "title"`
-	Cover   string `json: "cover"`
-	Content string `json: "content"`
+	Document string `json:document`
 }
 
 func (u *UserAPI) publish(ctx iris.Context) {
@@ -21,9 +19,7 @@ func (u *UserAPI) publish(ctx iris.Context) {
 
 	post := Post{
 		Id:        _uuid,
-		Title:     body.Title,
-		Cover:     body.Cover,
-		Content:   body.Content,
+		Document:  body.Document,
 		Timestamp: time.Now().Unix(),
 	}
 
@@ -70,9 +66,7 @@ func (u *UserAPI) updateUserName(ctx iris.Context) {
 
 /// updatePost
 type UpdatePostBody struct {
-	Title   string `json:title`
-	Cover   string `json:cover`
-	Content string `json:content`
+	Document string `json:document`
 }
 
 func (u *UserAPI) updatePost(ctx iris.Context) {
@@ -95,9 +89,7 @@ func (u *UserAPI) updatePost(ctx iris.Context) {
 	}
 
 	if err := u.db.Model(&post).Where("id = ?", id).Updates(map[string]interface{}{
-		"title":   body.Title,
-		"cover":   body.Cover,
-		"content": body.Content,
+		"document": body.Document,
 	}).Error; err != nil {
 		ctx.StatusCode(iris.StatusBadRequest)
 		return

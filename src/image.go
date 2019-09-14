@@ -22,7 +22,7 @@ func (u *UserAPI) upload(ctx iris.Context) {
 
 	ctx.JSON(iris.Map{
 		"msg":   "ok",
-		"cover": key,
+		"image": key,
 	})
 }
 

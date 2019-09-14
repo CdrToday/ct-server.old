@@ -30,8 +30,6 @@ type User struct {
 /// article
 type Post struct {
 	Id        string `gorm:"unique;primary_key"json:"id"`
-	Title     string `json:"title"`
-	Cover     string `json:"cover"`
-	Content   string `json:"content"`
+	Document  string `json:"document"`
 	Timestamp int64  `json:"timestamp"`
 }

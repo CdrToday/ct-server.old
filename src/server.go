@@ -46,10 +46,10 @@ func main() {
 		v0.Put("/u/{mail:string}/i/name", user.updateUserName) // ok
 
 		// posts
-		v0.Get("/u/{mail:string}/p", post.mail)                      // ok
-		v0.Post("/u/{mail:string}/p", user.publish)                  // ok
-		v0.Put("/u/{mail:string}/p/{id:string}", user.updatePost)    // ok
-		v0.Delete("/u/{mail:string}/p/{id:string}", user.deletePost) // ok
+		v0.Get("/u/{mail:string}/post", post.mail)                      // ok
+		v0.Post("/u/{mail:string}/post", user.publish)                  // ok
+		v0.Put("/u/{mail:string}/post/{id:string}", user.updatePost)    // ok
+		v0.Delete("/u/{mail:string}/post/{id:string}", user.deletePost) // ok
 	}
 
 	app.Run(iris.Addr(":6060"))
