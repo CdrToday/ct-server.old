@@ -42,8 +42,9 @@ func (u *UserAPI) verify(ctx iris.Context) {
 		ctx.JSON(iris.Map{
 			"msg": "ok",
 			"data": iris.Map{
-				"name": user.Name,
-				"mail": user.Mail,
+				"name":   user.Name,
+				"mail":   user.Mail,
+				"avatar": user.Avatar,
 			},
 		})
 

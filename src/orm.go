@@ -1,7 +1,6 @@
 package main
 
 import (
-	// "fmt"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/lib/pq"
@@ -9,10 +8,7 @@ import (
 
 func orm() *gorm.DB {
 	t := conf()
-	db, err := gorm.Open("postgres", t.Get("pg.addr").(string))
-	if err != nil {
-		panic(err)
-	}
+	db, _ := gorm.Open("postgres", t.Get("pg.addr").(string))
 
 	db.AutoMigrate(&User{})
 	db.AutoMigrate(&Post{})
@@ -22,9 +18,10 @@ func orm() *gorm.DB {
 
 /// user
 type User struct {
-	Name  string
-	Mail  string         `gorm:"unique"`
-	Posts pq.StringArray `gorm:"type:varchar(100)[];"`
+	Avatar string
+	Mail   string `gorm:"unique"`
+	Name   string
+	Posts  pq.StringArray `gorm:"type:varchar(100)[];"`
 }
 
 /// article

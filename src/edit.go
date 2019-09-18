@@ -35,35 +35,6 @@ func (u *UserAPI) publish(ctx iris.Context) {
 	})
 }
 
-// updateUser
-type UpdateUserNameBody struct {
-	Name string `json:name`
-}
-
-func (u *UserAPI) updateUserName(ctx iris.Context) {
-	mail := ctx.Params().Get("mail")
-	var body UpdateUserNameBody
-	ctx.ReadJSON(&body)
-
-	var user User
-	if err := u.db.Where("name = ?", body.Name).Find(&user).Error; err != nil {
-		u.db.Model(&user).Where("mail = ?", mail).Update("name", body.Name)
-		u.db.Where("name = ?", body.Name).Find(&user)
-
-		ctx.JSON(iris.Map{
-			"msg": "ok",
-			"data": iris.Map{
-				"mail": user.Mail,
-				"name": user.Name,
-			},
-		})
-
-		return
-	}
-
-	ctx.StatusCode(iris.StatusBadRequest)
-}
-
 /// updatePost
 type UpdatePostBody struct {
 	Document string `json:document`

@@ -42,8 +42,9 @@ func main() {
 		v0.Use(auth) // ok
 
 		// profile
-		v0.Post("/u/{mail:string}/upload", user.upload)        // ok
-		v0.Put("/u/{mail:string}/i/name", user.updateUserName) // ok
+		v0.Post("/u/{mail:string}/upload", user.upload)            // ok
+		v0.Put("/u/{mail:string}/i/name", user.updateUserName)     // ok
+		v0.Put("/u/{mail:string}/i/avatar", user.updateUserAvatar) // ok
 
 		// posts
 		v0.Get("/u/{mail:string}/post", post.mail)                      // ok
@@ -52,7 +53,8 @@ func main() {
 		v0.Delete("/u/{mail:string}/post/{id:string}", user.deletePost) // ok
 	}
 
-	app.Run(iris.Addr(":6060"))
+	t := conf()
+	app.Run(iris.Addr(t.Get("server.port").(string)))
 }
 
 func auth(ctx iris.Context) {
