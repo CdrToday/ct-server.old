@@ -27,7 +27,7 @@ func (u *UserAPI) mail(ctx iris.Context) {
 
 /// @route: "/:mail/verify"
 type VerifyBody struct {
-	Code string `json: "code"`
+	Code string `json:"code"`
 }
 
 func (u *UserAPI) verify(ctx iris.Context) {

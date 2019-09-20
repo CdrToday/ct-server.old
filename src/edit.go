@@ -24,7 +24,6 @@ func (u *UserAPI) publish(ctx iris.Context) {
 	}
 
 	var user User
-	u.db.Where("mail = ?", mail).Find(&user)
 	u.db.Create(&post)
 
 	_posts := append(user.Posts, _uuid)
