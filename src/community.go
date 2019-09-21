@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	// "fmt"
 	"github.com/jinzhu/gorm"
 	"github.com/kataras/iris"
 )
@@ -76,13 +76,12 @@ func (c *CommunityAPI) join(ctx iris.Context) {
 	})
 }
 
+// @route: GET "/u/:mail/c"
 func (c *CommunityAPI) communities(ctx iris.Context) {
 	mail := ctx.Params().Get("mail")
 
 	var user User
 	c.db.Where("mail = ?", mail).Find(&user)
-
-	fmt.Println(user.Communities)
 
 	var communities []Community
 	var _arr []string = user.Communities
@@ -93,9 +92,25 @@ func (c *CommunityAPI) communities(ctx iris.Context) {
 		return
 	}
 
-	fmt.Println(communities)
-
 	ctx.JSON(iris.Map{
 		"communities": communities,
+	})
+}
+
+// @route: GET "/u/:mail/c/:id"
+func (c *CommunityAPI) members(ctx iris.Context) {
+	id := ctx.Params().Get("id")
+
+	var community Community
+	c.db.Where("id = ?", id).Find(&community)
+
+	var members []string = community.Members
+	users := []User{}
+	c.db.Where("mail in (?)", members).Select(
+		"name, avatar, mail",
+	).Find(&users)
+
+	ctx.JSON(iris.Map{
+		"members": users,
 	})
 }

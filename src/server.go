@@ -38,13 +38,17 @@ func main() {
 		v0.Post("/a/{mail:string}", user.verify)
 
 		// open
-		v0.Get("/p/{id:string}", post.spec)
-		v0.Get("/x/{user:string}/p", post.user)
+		// v0.Get("/p/{id:string}", post.spec)
+		// v0.Get("/x/{user:string}/p", post.user)
+
+		// author
+		v0.Get("/a/{mail:string}/post", post.mail)
 
 		v0.Use(auth)
 
 		// community
 		v0.Get("/u/{mail:string}/c", community.communities)
+		v0.Get("/u/{mail:string}/c/:id/members", community.members)
 		v0.Post("/u/{mail:string}/c/create", community.create)
 		v0.Post("/u/{mail:string}/c/join", community.join)
 

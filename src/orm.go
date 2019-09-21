@@ -19,11 +19,11 @@ func orm() *gorm.DB {
 
 /// user
 type User struct {
-	Avatar      string
-	Mail        string `gorm:"unique"`
-	Name        string
-	Posts       pq.StringArray `gorm:"type:varchar(100)[];"`
-	Communities pq.StringArray `gorm:"type:varchar(100)[];"`
+	Avatar      string         `json:"avatar"`
+	Mail        string         `gorm:"unique"json:"mail"`
+	Name        string         `json:"name"`
+	Posts       pq.StringArray `gorm:"type:varchar(100)[];"json:"posts"`
+	Communities pq.StringArray `gorm:"type:varchar(100)[];"json:"communities"`
 }
 
 /// article
