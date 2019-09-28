@@ -41,17 +41,6 @@ func (c *CommunityAPI) create(ctx iris.Context) {
 		return
 	}
 
-	var user User
-	c.db.Where("mail = ?", mail).Find(&user)
-	_communities := user.Communities
-
-	if err := c.db.Model(&user).Where(
-		"mail = ?", mail,
-	).Update("communities", append(_communities, body.Id)).Error; err != nil {
-		ctx.StatusCode(iris.StatusBadRequest)
-		return
-	}
-
 	ctx.JSON(iris.Map{
 		"msg": "ok",
 	})
@@ -66,14 +55,31 @@ func (c *CommunityAPI) join(ctx iris.Context) {
 	var community Community
 	c.db.Where("id = ?", body.Id).Find(&community)
 
-	applicants := community.Applicants
-	_applicants := append(applicants, mail)
+	// applicants := community.Applicants
+	// _applicants := append(applicants, mail)
+	// c.db.Model(&community).Where("id = ?", body.Id).Update("applicants", _applicants)
 
-	c.db.Model(&community).Where("id = ?", body.Id).Update("applicants", _applicants)
+	members := community.Members
+	if b := contains(members, mail); b == true {
+		ctx.JSON(iris.Map{
+			"msg": "joined",
+		})
+		return
+	}
 
-	ctx.JSON(iris.Map{
-		"msg": "ok",
-	})
+	_members := append(community.Members, mail)
+	if err := c.db.Model(&community).Where(
+		"id = ?", body.Id,
+	).Update(
+		"members", _members,
+	).Error; err == nil {
+		ctx.JSON(iris.Map{
+			"msg": "ok",
+		})
+		return
+	}
+
+	ctx.StatusCode(iris.StatusBadRequest)
 }
 
 // @route: GET "/u/:mail/c"
@@ -84,8 +90,10 @@ func (c *CommunityAPI) communities(ctx iris.Context) {
 	c.db.Where("mail = ?", mail).Find(&user)
 
 	var communities []Community
-	var _arr []string = user.Communities
-	if err := c.db.Where("id IN (?)", _arr).Select(
+	// var _arr []string = user.Communities
+	if err := c.db.Where(
+		"array_to_string(members, ',', '*') LIKE ?", "%"+mail+"%",
+	).Select(
 		"id, name, owner, avatar, members",
 	).Find(&communities).Error; err != nil {
 		ctx.StatusCode(iris.StatusBadRequest)
@@ -112,5 +120,30 @@ func (c *CommunityAPI) members(ctx iris.Context) {
 
 	ctx.JSON(iris.Map{
 		"members": users,
+	})
+}
+
+// @route: GET "/u/:mail/c/:id/quit"
+func (c *CommunityAPI) quit(ctx iris.Context) {
+	id := ctx.Params().Get("id")
+	mail := ctx.Params().Get("mail")
+
+	var community Community
+	c.db.Where("id = ?", id).Find(&community)
+	_ms := community.Members
+	_ms = deleteStringFromArray(_ms, mail)
+
+	if len(_ms) > 0 {
+		c.db.Model(&Community{}).Where("id = ?", id).Update("members", _ms)
+	} else {
+		c.db.Model(&community).Delete(&Community{Id: id})
+	}
+
+	if mail == community.Owner && len(_ms) > 0 {
+		c.db.Model(&Community{}).Where("id = ?", id).Update("owner", _ms[0])
+	}
+
+	ctx.JSON(iris.Map{
+		"msg": "ok",
 	})
 }

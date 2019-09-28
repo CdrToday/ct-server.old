@@ -12,6 +12,7 @@ func orm() *gorm.DB {
 
 	db.AutoMigrate(&User{})
 	db.AutoMigrate(&Post{})
+	db.AutoMigrate(&Reddit{})
 	db.AutoMigrate(&Community{})
 
 	return db
@@ -19,17 +20,27 @@ func orm() *gorm.DB {
 
 /// user
 type User struct {
-	Avatar      string         `json:"avatar"`
-	Mail        string         `gorm:"unique"json:"mail"`
-	Name        string         `json:"name"`
-	Posts       pq.StringArray `gorm:"type:varchar(100)[];"json:"posts"`
-	Communities pq.StringArray `gorm:"type:varchar(100)[];"json:"communities"`
+	Avatar string         `json:"avatar"`
+	Mail   string         `gorm:"unique"json:"mail"`
+	Name   string         `json:"name"`
+	Posts  pq.StringArray `gorm:"type:varchar(100)[];"json:"posts"`
 }
 
 /// article
 type Post struct {
 	Id        string `gorm:"unique;primary_key"json:"id"`
+	Author    string `json:"author"`
 	Document  string `json:"document"`
+	Timestamp int64  `json:"timestamp"`
+}
+
+/// article
+type Reddit struct {
+	Id        string `gorm:"unique;primary_key"json:"id"`
+	Type      string `json:"type"`
+	Author    string `json:"author"`
+	Document  string `json:"document"`
+	Community string `json:"community"`
 	Timestamp int64  `json:"timestamp"`
 }
 

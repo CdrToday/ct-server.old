@@ -21,10 +21,12 @@ func main() {
 
 	// Methods
 	_orm := orm()
+	// _orm.LogMode(true)
 	defer _orm.Close()
 
 	user := UserAPI{db: _orm}
 	post := PostAPI{db: _orm}
+	reddit := RedditAPI{db: _orm}
 	community := CommunityAPI{db: _orm}
 
 	// Router
@@ -34,21 +36,28 @@ func main() {
 		v0.Get("/", root)
 
 		// auth
-		v0.Get("/a/{mail:string}", user.mail)
-		v0.Post("/a/{mail:string}", user.verify)
+		v0.Get("/u/{mail:string}", user.mail)
+		v0.Post("/u/{mail:string}", user.verify)
 
 		// open
 		// v0.Get("/p/{id:string}", post.spec)
 		// v0.Get("/x/{user:string}/p", post.user)
 
 		// author
-		v0.Get("/a/{mail:string}/post", post.mail)
+		v0.Get("/u/{mail:string}/post", post.mail)
 
 		v0.Use(auth)
+
+		// reddit
+		v0.Get("/u/:mail/c/:id/reddit", reddit.reddits)
+		v0.Post("/u/:mail/reddit", reddit.publish)
+		v0.Put("/u/:mail/r/:id", reddit.updateReddit)
+		v0.Delete("/u/:mail/r/:id", reddit.deleteReddit)
 
 		// community
 		v0.Get("/u/{mail:string}/c", community.communities)
 		v0.Get("/u/{mail:string}/c/:id/members", community.members)
+		v0.Get("/u/{mail:string}/c/:id/quit", community.quit)
 		v0.Post("/u/{mail:string}/c/create", community.create)
 		v0.Post("/u/{mail:string}/c/join", community.join)
 

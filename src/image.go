@@ -74,3 +74,18 @@ func saveImage(b64 string) (string, string) {
 
 	return key, path
 }
+
+func changeImageName(key string, dkey string) {
+	t := conf()
+
+	mac := qbox.NewMac(
+		t.Get("qiniu.ak").(string),
+		t.Get("qiniu.sk").(string),
+	)
+
+	bucket := t.Get("qiniu.bucket").(string)
+	bucketManager := storage.NewBucketManager(mac, &storage.Config{})
+
+	force := true
+	bucketManager.Copy(bucket, key, bucket, dkey, force)
+}

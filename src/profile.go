@@ -42,19 +42,11 @@ func (u *UserAPI) updateUserAvatar(ctx iris.Context) {
 	var body UpdateUserAvatarBody
 	ctx.ReadJSON(&body)
 
-	var user User
-	if err := u.db.Model(&user).Where(
-		"mail = ?", mail,
-	).Update("avatar", body.Avatar).Error; err != nil {
-		ctx.StatusCode(iris.StatusBadRequest)
-		return
-	}
+	u.db.Where("mail = ?", mail).Find(&User{}).Update("avatar", body.Avatar)
+	changeImageName(body.Avatar, mail)
 
-	u.db.Where("mail = ?", mail).Select("avatar").Find(&user)
 	ctx.JSON(iris.Map{
-		"msg": "ok",
-		"data": iris.Map{
-			"avatar": user.Avatar,
-		},
+		"msg":    "ok",
+		"avatar": body.Avatar,
 	})
 }

@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// publish
+/// publish
 type PublishBody struct {
 	Document string `json:document`
 }
@@ -17,17 +17,18 @@ func (u *UserAPI) publish(ctx iris.Context) {
 	ctx.ReadJSON(&body)
 	_uuid := uuid.NewV4().String()
 
-	post := Post{
+	u.db.Create(&Post{
 		Id:        _uuid,
+		Author:    mail,
 		Document:  body.Document,
 		Timestamp: time.Now().Unix(),
-	}
+	})
 
 	var user User
-	u.db.Create(&post)
+	u.db.Where("mail = ?", mail).Find(&user)
 
 	_posts := append(user.Posts, _uuid)
-	u.db.Model(&user).Where("mail = ?", mail).Update("posts", _posts)
+	u.db.Model(&User{}).Where("mail = ?", mail).Update("posts", _posts)
 
 	ctx.JSON(iris.Map{
 		"msg": "ok",
@@ -70,7 +71,7 @@ func (u *UserAPI) updatePost(ctx iris.Context) {
 	})
 }
 
-// delete post
+/// delete post
 func (u *UserAPI) deletePost(ctx iris.Context) {
 	id := ctx.Params().Get("id")
 	mail := ctx.Params().Get("mail")
@@ -78,31 +79,17 @@ func (u *UserAPI) deletePost(ctx iris.Context) {
 	// delete post in user
 	var user User
 	u.db.Where("mail = ?", mail).Find(&user)
+	_arr := user.Posts
 
-	index := 0
-	for i, b := range user.Posts {
-		if b == id {
-			index = i
+	for i, p := range user.Posts {
+		if p == id {
+			_arr[i] = _arr[len(_arr)-1]
+			_arr = _arr[:len(_arr)-1]
 		}
 	}
 
-	if index == 0 {
-		ctx.StatusCode(iris.StatusBadRequest)
-		return
-	}
-
-	_arr := user.Posts
-	_arr[index] = _arr[len(_arr)-1]
-	_arr = _arr[:len(_arr)-1]
-
 	u.db.Model(&user).Where("mail = ?", mail).Update("posts", _arr)
-
-	// delete post
-	post := Post{
-		Id: id,
-	}
-
-	u.db.Delete(&post)
+	u.db.Delete(&Post{Id: id})
 
 	ctx.JSON(iris.Map{
 		"msg": "ok",
