@@ -1,7 +1,6 @@
 package main
 
 import (
-	// "fmt"
 	"github.com/jinzhu/gorm"
 	"github.com/kataras/iris"
 )
