@@ -43,7 +43,6 @@ func (u *UserAPI) updateUserAvatar(ctx iris.Context) {
 	ctx.ReadJSON(&body)
 
 	u.db.Where("mail = ?", mail).Find(&User{}).Update("avatar", body.Avatar)
-	changeImageName(body.Avatar, mail)
 
 	ctx.JSON(iris.Map{
 		"msg":    "ok",

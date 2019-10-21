@@ -3,11 +3,13 @@ package main
 import (
 	"encoding/base64"
 	"github.com/kataras/iris"
-	"github.com/qiniu/api.v7/auth/qbox"
-	"github.com/qiniu/api.v7/storage"
 	"github.com/satori/go.uuid"
+	"github.com/tencentyun/cos-go-sdk-v5"
 	"golang.org/x/net/context"
+	"net/http"
+	"net/url"
 	"os"
+	"strings"
 )
 
 type UploadBody struct {
@@ -20,6 +22,11 @@ func (u *UserAPI) upload(ctx iris.Context) {
 
 	key := proxy(body)
 
+	if key == "" {
+		ctx.StatusCode(iris.StatusBadRequest)
+		return
+	}
+
 	ctx.JSON(iris.Map{
 		"msg":   "ok",
 		"image": key,
@@ -30,36 +37,43 @@ func proxy(body UploadBody) string {
 	t := conf()
 
 	key, localFile := saveImage(body.Image)
-	putPolicy := storage.PutPolicy{
-		Scope: t.Get("qiniu.bucket").(string),
+
+	u, _ := url.Parse(t.Get("cos.url").(string))
+	b := &cos.BaseURL{BucketURL: u}
+	c := cos.NewClient(b, &http.Client{
+		Transport: &cos.AuthorizationTransport{
+			SecretID:  t.Get("cos.sid").(string),
+			SecretKey: t.Get("cos.sk").(string),
+		},
+	})
+
+	name := "images/" + key
+	f := strings.NewReader("images")
+
+	_, err := c.Object.Put(context.Background(), name, f, nil)
+	if err != nil {
+		panic(err)
 	}
 
-	mac := qbox.NewMac(
-		t.Get("qiniu.ak").(string),
-		t.Get("qiniu.sk").(string),
-	)
+	_, err = c.Object.PutFromFile(context.Background(), name, localFile, nil)
+	if err != nil {
+		panic(err)
+	}
 
-	upToken := putPolicy.UploadToken(mac)
-	formUploader := storage.NewFormUploader(&storage.Config{})
-	ret := storage.PutRet{}
-
-	formUploader.PutFile(
-		context.Background(),
-		&ret,
-		upToken,
-		key,
-		localFile,
-		&storage.PutExtra{},
-	)
 	os.Remove(localFile)
-
-	return ret.Key
+	return key
 }
 
 func saveImage(b64 string) (string, string) {
 	key := uuid.NewV4().String()
 	home, _ := os.UserHomeDir()
-	path := home + "/tmp/cache" + key + ".png"
+	_dir := home + "/tmp/cache/"
+	_, err := os.Stat(_dir)
+	if err != nil {
+		os.MkdirAll(_dir, os.ModePerm)
+	}
+
+	path := _dir + key + ".png"
 
 	dec, err := base64.StdEncoding.DecodeString(b64)
 	if err != nil {
@@ -73,19 +87,4 @@ func saveImage(b64 string) (string, string) {
 	f.Sync()
 
 	return key, path
-}
-
-func changeImageName(key string, dkey string) {
-	t := conf()
-
-	mac := qbox.NewMac(
-		t.Get("qiniu.ak").(string),
-		t.Get("qiniu.sk").(string),
-	)
-
-	bucket := t.Get("qiniu.bucket").(string)
-	bucketManager := storage.NewBucketManager(mac, &storage.Config{})
-
-	force := true
-	bucketManager.Copy(bucket, key, bucket, dkey, force)
 }

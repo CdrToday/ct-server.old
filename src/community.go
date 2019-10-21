@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/jinzhu/gorm"
 	"github.com/kataras/iris"
+	"github.com/satori/go.uuid"
 )
 
 type CommunityAPI struct {
@@ -11,24 +12,19 @@ type CommunityAPI struct {
 
 // @route: POST "/u/:mail/c/create"
 type CreateBody struct {
-	Id   string `json:id`
 	Name string `json:name`
 }
 
 func (c *CommunityAPI) create(ctx iris.Context) {
 	mail := ctx.Params().Get("mail")
+	_uuid := uuid.NewV4().String()
+
 	var body CreateBody
 	ctx.ReadJSON(&body)
 
-	var community Community
-	if err := c.db.Where("id = ?", body.Id).Find(&community).Error; err == nil {
-		ctx.StatusCode(iris.StatusBadRequest)
-		return
-	}
-
 	if err := c.db.Create(
 		&Community{
-			Id:         body.Id,
+			Id:         _uuid,
 			Name:       body.Name,
 			Owner:      mail,
 			Avatar:     "",
@@ -45,10 +41,14 @@ func (c *CommunityAPI) create(ctx iris.Context) {
 	})
 }
 
+type JoinBody struct {
+	Id string `json:id`
+}
+
 // @route: POST "/u/:mail/c/join"
 func (c *CommunityAPI) join(ctx iris.Context) {
 	mail := ctx.Params().Get("mail")
-	var body CreateBody
+	var body JoinBody
 	ctx.ReadJSON(&body)
 
 	var community Community
