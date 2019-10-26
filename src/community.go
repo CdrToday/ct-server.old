@@ -3,7 +3,8 @@ package main
 import (
 	"github.com/jinzhu/gorm"
 	"github.com/kataras/iris"
-	"github.com/satori/go.uuid"
+	"math/rand"
+	"strconv"
 )
 
 type CommunityAPI struct {
@@ -15,16 +16,26 @@ type CreateBody struct {
 	Name string `json:name`
 }
 
+func genId(db *gorm.DB) string {
+	id := rand.Intn(90000) + 10000
+	var community Community
+	if err := db.Where("id = ?", id).Find(&community).Error; err != nil {
+		return strconv.Itoa(id)
+	} else {
+		return genId(db)
+	}
+}
+
 func (c *CommunityAPI) create(ctx iris.Context) {
 	mail := ctx.Params().Get("mail")
-	_uuid := uuid.NewV4().String()
+	_id := genId(c.db)
 
 	var body CreateBody
 	ctx.ReadJSON(&body)
 
 	if err := c.db.Create(
 		&Community{
-			Id:         _uuid,
+			Id:         _id,
 			Name:       body.Name,
 			Owner:      mail,
 			Avatar:     "",
@@ -69,9 +80,18 @@ func (c *CommunityAPI) join(ctx iris.Context) {
 	_members := append(community.Members, mail)
 	if err := c.db.Model(&community).Where(
 		"id = ?", body.Id,
-	).Update(
-		"members", _members,
 	).Error; err == nil {
+		if community.Id == "" {
+			ctx.StatusCode(iris.StatusBadRequest)
+			return
+		}
+
+		c.db.Model(&community).Where(
+			"id = ?", body.Id,
+		).Update(
+			"members", _members,
+		)
+
 		ctx.JSON(iris.Map{
 			"msg": "ok",
 		})
