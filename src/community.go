@@ -65,10 +65,6 @@ func (c *CommunityAPI) join(ctx iris.Context) {
 	var community Community
 	c.db.Where("id = ?", body.Id).Find(&community)
 
-	// applicants := community.Applicants
-	// _applicants := append(applicants, mail)
-	// c.db.Model(&community).Where("id = ?", body.Id).Update("applicants", _applicants)
-
 	members := community.Members
 	if b := contains(members, mail); b == true {
 		ctx.JSON(iris.Map{
@@ -100,6 +96,76 @@ func (c *CommunityAPI) join(ctx iris.Context) {
 
 	ctx.StatusCode(iris.StatusBadRequest)
 }
+
+// updateCommunityName
+type UpdateCommunityNameBody struct {
+	Name string `json:name`
+	Id   string `json:id`
+}
+
+func (u *CommunityAPI) updateCommunityName(ctx iris.Context) {
+	mail := ctx.Params().Get("mail")
+	var body UpdateCommunityNameBody
+	ctx.ReadJSON(&body)
+
+	var community Community
+	if err := u.db.Model(&community).Where(
+		"id = ?", body.Id,
+	).Find(&community).Error; err == nil {
+		if community.Owner != mail {
+			ctx.StatusCode(iris.StatusBadRequest)
+			return
+		}
+		u.db.Model(&community).Where("id = ?", body.Id).Update("name", body.Name)
+		u.db.Where("id = ?", body.Id).Select("name").Find(&community)
+
+		ctx.JSON(iris.Map{
+			"msg": "ok",
+			"data": iris.Map{
+				"name": community.Name,
+			},
+		})
+
+		return
+	}
+
+	ctx.StatusCode(iris.StatusBadRequest)
+}
+
+// updateCommunityId
+// type UpdateCommunityIdBody struct {
+// 	targetId string `json:targetId`
+// 	Id       string `json:id`
+// }
+
+// func (u *CommunityAPI) updateCommunityId(ctx iris.Context) {
+// 	mail := ctx.Params().Get("mail")
+// 	var body UpdateCommunityIdBody
+// 	ctx.ReadJSON(&body)
+//
+// 	var community Community
+// 	if err := u.db.Model(&community).Where(
+// 		"id = ?", body.Id,
+// 	).Find(&community).Error; err == nil {
+// 		if community.Owner != mail {
+// 			ctx.StatusCode(iris.StatusBadRequest)
+// 			return
+// 		}
+//
+// 		if err := u.db.Model(&community).Where(
+// 			"id = ?", body.Id,
+// 		).Update("id", body.targetId).Error; err == nil {
+// 			print("changed")
+// 			ctx.JSON(iris.Map{
+// 				"msg": "ok",
+// 			})
+// 		}
+//
+// 		ctx.StatusCode(iris.StatusBadRequest)
+// 	}
+//
+// 	ctx.StatusCode(iris.StatusBadRequest)
+// }
 
 // @route: GET "/u/:mail/c"
 func (c *CommunityAPI) communities(ctx iris.Context) {

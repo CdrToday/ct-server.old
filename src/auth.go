@@ -30,11 +30,21 @@ func (u *UserAPI) mail(ctx iris.Context) {
 		ctx.StatusCode(iris.StatusBadRequest)
 		return
 	}
-	////
 
 	var user User
 	if err := u.db.Where("mail = ?", mail).Find(&user).Error; err != nil {
 		u.db.FirstOrCreate(&user, User{Mail: mail})
+
+		var community Community
+		u.db.Where("id = ?", "95146").Find(&community)
+		_members := append(community.Members, mail)
+
+		u.db.Model(&community).Where(
+			"id = ?", "95146",
+		).Update(
+			"members", _members,
+		)
+
 		if rSet(mail, _uuid) {
 			ctx.JSON(iris.Map{
 				"msg":  "created",

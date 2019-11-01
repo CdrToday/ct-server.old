@@ -45,13 +45,13 @@ func main() {
 
 		// author
 		v0.Get("/u/{mail:string}/post", post.mail)
-
 		v0.Use(auth)
 
 		// reddit
 		v0.Get("/u/:mail/c/:id/reddit", reddit.reddits)
 		v0.Post("/u/:mail/reddit", reddit.publish)
 		v0.Put("/u/:mail/r/:id", reddit.updateReddit)
+		v0.Post("/u/:mail/r/:id/time", reddit.updateRedditTime)
 		v0.Delete("/u/:mail/r/:id", reddit.deleteReddit)
 
 		// community
@@ -60,6 +60,8 @@ func main() {
 		v0.Get("/u/{mail:string}/c/:id/quit", community.quit)
 		v0.Post("/u/{mail:string}/c/create", community.create)
 		v0.Post("/u/{mail:string}/c/join", community.join)
+		v0.Put("/u/{mail:string}/c/name", community.updateCommunityName)
+		// v0.Put("/u/{mail:string}/c/id", community.updateCommunityId)
 
 		// profile
 		v0.Post("/u/{mail:string}/upload", user.upload)

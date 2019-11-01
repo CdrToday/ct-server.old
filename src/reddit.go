@@ -76,6 +76,19 @@ func (r *RedditAPI) updateReddit(ctx iris.Context) {
 	})
 }
 
+func (r *RedditAPI) updateRedditTime(ctx iris.Context) {
+	id := ctx.Params().Get("id")
+
+	var body UpdateReddit
+	ctx.ReadJSON(&body)
+
+	r.db.Model(&Reddit{}).Where("id = ?", id).Update("timestamp", time.Now().Unix())
+
+	ctx.JSON(iris.Map{
+		"msg": "ok",
+	})
+}
+
 /// @route: DELETE "/u/:mail/r/:id"
 func (r *RedditAPI) deleteReddit(ctx iris.Context) {
 	id := ctx.Params().Get("id")

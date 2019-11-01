@@ -15,9 +15,8 @@ func (u *UserAPI) updateUserName(ctx iris.Context) {
 	ctx.ReadJSON(&body)
 
 	var user User
-	if err := u.db.Where("name = ?", body.Name).Find(&user).Error; err != nil {
-		u.db.Model(&user).Where("mail = ?", mail).Update("name", body.Name)
-		u.db.Where("name = ?", body.Name).Select("name").Find(&user)
+	if err := u.db.Model(&user).Where("mail = ?", mail).Update("name", body.Name).Error; err == nil {
+		u.db.Where("mail = ?", mail).Select("name").Find(&user)
 
 		ctx.JSON(iris.Map{
 			"msg": "ok",
