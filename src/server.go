@@ -57,6 +57,8 @@ func main() {
 		// community
 		v0.Get("/u/{mail:string}/c", community.communities)
 		v0.Get("/u/{mail:string}/c/:id/members", community.members)
+		v0.Get("/u/{mail:string}/c/:id/topics", community.topics)
+		v0.Get("/u/{mail:string}/c/:id/topic/:topic", community.topicBatch)
 		v0.Get("/u/{mail:string}/c/:id/quit", community.quit)
 		v0.Post("/u/{mail:string}/c/create", community.create)
 		v0.Post("/u/{mail:string}/c/join", community.join)

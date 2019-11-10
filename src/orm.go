@@ -38,6 +38,7 @@ type Post struct {
 type Reddit struct {
 	Id        string `gorm:"unique;primary_key"json:"id"`
 	Type      string `json:"type"`
+	Topic     string `json:"topic"`
 	Author    string `json:"author"`
 	Document  string `json:"document"`
 	Community string `json:"community"`
@@ -50,6 +51,7 @@ type Community struct {
 	Name       string         `json:"name"`
 	Owner      string         `json:"owner"`
 	Avatar     string         `json:"avatar"`
+	Topics     pq.StringArray `gorm:"type:varchar(100)[]"json:"topics"`
 	Members    pq.StringArray `gorm:"type:varchar(100)[];"json:"members"`
 	Applicants pq.StringArray `gorm:"type:varchar(100)[];"json:"applicants"`
 }

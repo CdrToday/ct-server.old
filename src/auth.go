@@ -52,16 +52,17 @@ func (u *UserAPI) mail(ctx iris.Context) {
 			})
 			return
 		}
-
-		ctx.StatusCode(iris.StatusBadRequest)
-		return
 	}
 
 	if sendMail(mail, _uuid) && rSet(mail, _uuid) {
 		ctx.JSON(iris.Map{
 			"msg": "ok",
 		})
+		return
 	}
+
+	ctx.StatusCode(iris.StatusBadRequest)
+	return
 }
 
 /// @route: "/:mail/verify"

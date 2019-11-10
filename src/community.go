@@ -208,6 +208,37 @@ func (c *CommunityAPI) members(ctx iris.Context) {
 	})
 }
 
+// @route: GET "/u/:mail/c/:id/topics"
+func (c *CommunityAPI) topics(ctx iris.Context) {
+	id := ctx.Params().Get("id")
+
+	var community Community
+	c.db.Where("id = ?", id).Find(&community)
+
+	var topics []Reddit
+	var _topics []string = community.Topics
+	c.db.Where("id in (?)", _topics).Find(&topics)
+
+	ctx.JSON(iris.Map{
+		"topics": topics,
+	})
+}
+
+func (c *CommunityAPI) topicBatch(ctx iris.Context) {
+	id := ctx.Params().Get("id")
+	topic := ctx.Params().Get("topic")
+
+	var community Community
+	c.db.Where("id = ?", id).Find(&community)
+
+	var reddits []Reddit
+	c.db.Where("topic = ?", topic).Order("timestamp desc").Find(&reddits)
+
+	ctx.JSON(iris.Map{
+		"reddits": reddits,
+	})
+}
+
 // @route: GET "/u/:mail/c/:id/quit"
 func (c *CommunityAPI) quit(ctx iris.Context) {
 	id := ctx.Params().Get("id")

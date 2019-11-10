@@ -31,8 +31,9 @@ func (r *RedditAPI) reddits(ctx iris.Context) {
 ///@route: POST "/u/:mail/reddit"
 type RedditBody struct {
 	Type      string `json:"type"`
-	Community string `json:"community"`
+	Topic     string `json:"topic"`
 	Document  string `json:"document"`
+	Community string `json:"community"`
 }
 
 func (r *RedditAPI) publish(ctx iris.Context) {
@@ -42,9 +43,35 @@ func (r *RedditAPI) publish(ctx iris.Context) {
 	ctx.ReadJSON(&body)
 	_uuid := uuid.NewV4().String()
 
+	var hasTopic bool
+	var community Community
+	if body.Topic != "" {
+		r.db.Where("id = ?", body.Community).Find(&community)
+
+		for _, t := range community.Topics {
+			if t == body.Topic {
+				hasTopic = true
+			}
+		}
+
+		if !hasTopic {
+			_topics := append(community.Topics, body.Topic)
+			r.db.Model(&community).Where(
+				"id = ?", body.Community,
+			).Update(
+				"topics", _topics,
+			)
+
+			r.db.Model(Reddit{}).Where(
+				"id = ?", body.Topic,
+			).Update("topic", body.Topic)
+		}
+	}
+
 	r.db.Create(&Reddit{
 		Id:        _uuid,
 		Type:      body.Type,
+		Topic:     body.Topic,
 		Author:    mail,
 		Community: body.Community,
 		Document:  body.Document,
