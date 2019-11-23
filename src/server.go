@@ -39,12 +39,8 @@ func main() {
 		v0.Get("/u/{mail:string}", user.mail)
 		v0.Post("/u/{mail:string}", user.verify)
 
-		// open
-		// v0.Get("/p/{id:string}", post.spec)
-		// v0.Get("/x/{user:string}/p", post.user)
-
 		// author
-		v0.Get("/u/{mail:string}/post", post.mail)
+		// v0.Get("/u/{mail:string}/post", post.mail)
 		v0.Use(auth)
 
 		// reddit
@@ -69,9 +65,10 @@ func main() {
 		v0.Post("/u/{mail:string}/upload", user.upload)
 		v0.Put("/u/{mail:string}/i/name", user.updateUserName)
 		v0.Put("/u/{mail:string}/i/avatar", user.updateUserAvatar)
+		v0.Post("/u/:mail/report", user.report)
 
 		// posts
-		v0.Get("/u/{mail:string}/post", post.mail)
+		v0.Get("/u/:mail/post/:ident", post.posts)
 		v0.Post("/u/{mail:string}/post", user.publish)
 		v0.Put("/u/{mail:string}/post/{id:string}", user.updatePost)
 		v0.Delete("/u/{mail:string}/post/{id:string}", user.deletePost)

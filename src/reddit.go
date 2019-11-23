@@ -20,7 +20,9 @@ func (r *RedditAPI) reddits(ctx iris.Context) {
 	_page, _ := strconv.Atoi(page)
 
 	var reddits []Reddit
-	r.db.Where("community = ?", id).Order("timestamp desc").Limit(limit).Offset(_page * limit).Find(&reddits)
+	r.db.Where("community = ?", id).Order(
+		"timestamp desc",
+	).Limit(limit).Offset(_page * limit).Find(&reddits)
 
 	ctx.JSON(iris.Map{
 		"msg":     "ok",

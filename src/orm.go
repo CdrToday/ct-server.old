@@ -14,6 +14,7 @@ func orm() *gorm.DB {
 	db.AutoMigrate(&Post{})
 	db.AutoMigrate(&Reddit{})
 	db.AutoMigrate(&Community{})
+	db.AutoMigrate(&Report{})
 
 	return db
 }
@@ -54,4 +55,14 @@ type Community struct {
 	Topics     pq.StringArray `gorm:"type:varchar(100)[]"json:"topics"`
 	Members    pq.StringArray `gorm:"type:varchar(100)[];"json:"members"`
 	Applicants pq.StringArray `gorm:"type:varchar(100)[];"json:"applicants"`
+}
+
+/// report
+type Report struct {
+	Id        string `gorm:"unique;primary_key"json:"id"`
+	Type      string `json:"type"`
+	Task      string `json:"task"`
+	From      string `json:"from"`
+	Content   string `json:"content"`
+	Timestamp int64  `json:"timestamp"`
 }
