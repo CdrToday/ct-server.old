@@ -217,7 +217,7 @@ func (c *CommunityAPI) topics(ctx iris.Context) {
 
 	var topics []Reddit
 	var _topics []string = community.Topics
-	c.db.Where("id in (?)", _topics).Find(&topics)
+	c.db.Where("id in (?)", _topics).Order("timestamp desc").Find(&topics)
 
 	ctx.JSON(iris.Map{
 		"topics": topics,
