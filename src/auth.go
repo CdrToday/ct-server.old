@@ -7,7 +7,7 @@ import (
 )
 
 func root(ctx iris.Context) {
-	ctx.HTML("hello, wolrd")
+	ctx.HTML("hello, world")
 }
 
 type UserAPI struct {

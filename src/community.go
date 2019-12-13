@@ -33,7 +33,7 @@ func (c *CommunityAPI) create(ctx iris.Context) {
 	var body CreateBody
 	ctx.ReadJSON(&body)
 
-	if err := c.db.Create(
+	c.db.Create(
 		&Community{
 			Id:         _id,
 			Name:       body.Name,
@@ -42,10 +42,7 @@ func (c *CommunityAPI) create(ctx iris.Context) {
 			Members:    []string{mail},
 			Applicants: []string{},
 		},
-	).Error; err != nil {
-		ctx.StatusCode(iris.StatusBadRequest)
-		return
-	}
+	)
 
 	ctx.JSON(iris.Map{
 		"msg": "ok",
